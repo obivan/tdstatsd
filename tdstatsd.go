@@ -78,7 +78,7 @@ func getTdData(url string, c *http.Client) ([]byte, error) {
 
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("can't read responce body: %s", err)
+		log.Printf("can't read response body: %s", err)
 	}
 	return buf, nil
 }
