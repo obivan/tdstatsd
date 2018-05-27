@@ -9,16 +9,10 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 	"time"
 )
-
-// TDPool is a traffic director pool info
-type TDPool struct {
-	Name   string
-	URL    string
-	Status string
-}
 
 func main() {
 	var tdURL string
@@ -59,6 +53,7 @@ func index(url string, c *http.Client, tpl *template.Template) http.Handler {
 			internalServerError(err)
 			return
 		}
+		sort.Sort(byStatus(pools))
 		w.WriteHeader(http.StatusOK)
 		if err := tpl.Execute(w, pools); err != nil {
 			internalServerError(err)
