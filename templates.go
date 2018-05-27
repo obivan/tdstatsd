@@ -5,6 +5,7 @@ const indexPageTemplate = `
 <html>
 	<head>
 		<meta charset="UTF-8">
+		<meta http-equiv="refresh" content="5">
 		<title>Pools status</title>
 		<style type="text/css">
 			table {
