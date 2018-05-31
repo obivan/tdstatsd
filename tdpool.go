@@ -7,7 +7,7 @@ type TDPool struct {
 	Status string
 }
 
-// offline first
+// sorted by status
 type byStatus []TDPool
 
 func (b byStatus) Len() int {
@@ -17,6 +17,8 @@ func (b byStatus) Len() int {
 func (b byStatus) Swap(i, j int) {
 	b[i], b[j] = b[j], b[i]
 }
+
+// records with "online" status should be at the bottom of the list
 func (b byStatus) Less(i, j int) bool {
-	return b[i].Status == "offline" || false
+	return b[i].Status != "online" || false
 }
