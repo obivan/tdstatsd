@@ -9,20 +9,37 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strings"
 	"time"
 )
 
+var (
+	tdstatsdVersion = "dev"
+	tdstatsdCommit  = "none"
+	tdstatsdDate    = "unknown"
+)
+
 func main() {
-	var tdURL string
+	var (
+		tdURL       string
+		showVersion bool
+	)
 	flag.StringVar(
 		&tdURL,
 		"url",
 		"http://localhost:8000/_perf.txt",
 		"Traffic Director stats page URL",
 	)
+	flag.BoolVar(&showVersion, "version", false, "Show version and exit")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("%v, commit %v, built at %v\n",
+			tdstatsdVersion, tdstatsdCommit, tdstatsdDate)
+		os.Exit(0)
+	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	indexTpl := template.Must(

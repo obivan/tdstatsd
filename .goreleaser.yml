@@ -1,11 +1,14 @@
 env_files:
   github_token: .github_token
+
 builds:
   - binary: tdstatsd
     goos:
       - linux
     goarch:
       - amd64
+    ldflags:
+      - -s -w -X main.tdstatsdVersion={{.Version}} -X main.tdstatsdCommit={{.Commit}} -X main.tdstatsdDate={{.Date}}
 
 archive:
   format: tar.gz
