@@ -31,8 +31,7 @@ func TestParseSort(t *testing.T) {
 }
 
 func TestParseEmpty(t *testing.T) {
-	t.Log(testDataHead + testDataTail)
-	data := []byte(testDataHead + testDataTail)
+	data := []byte(testDataHead + "\n" + testDataTail)
 	if pools := mustParse(t, data); len(pools) != 0 {
 		t.Fatal("Expected 0 pools")
 	}
@@ -126,7 +125,6 @@ Total Response Time:        0,0360  2028741,0000    (100,00%)
 Origin server statistics (for http):
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Pool-name             Host:Port                    Status  ActiveConn  IdleConn  StickyConn  Timeouts  Aborted  Sticky-Reqs  Total-Reqs  BytesTrans  BytesRecvd
-
 `
 
 const testDataPools = `
