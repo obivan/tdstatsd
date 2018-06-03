@@ -16,6 +16,10 @@ var mustParse = func(t *testing.T, data []byte) []TDPool {
 func TestParseSort(t *testing.T) {
 	data := []byte(testDataHead + testDataPools + testDataTail)
 	pools := mustParse(t, data)
+	if len(pools) == 0 {
+		// nothing to sort
+		t.SkipNow()
+	}
 
 	// check sort. last 4 pools must be online
 	sort.Sort(byStatus(pools))
@@ -27,16 +31,17 @@ func TestParseSort(t *testing.T) {
 }
 
 func TestParseEmpty(t *testing.T) {
+	t.Log(testDataHead + testDataTail)
 	data := []byte(testDataHead + testDataTail)
 	if pools := mustParse(t, data); len(pools) != 0 {
-		t.Fatal("Count of pools must be 0")
+		t.Fatal("Expected 0 pools")
 	}
 }
 
 func TestParseWrongData(t *testing.T) {
 	data := []byte("wrong data")
 	if pools := mustParse(t, data); len(pools) != 0 {
-		t.Fatal("Count of pools must be 0")
+		t.Fatal("Expected 0 pools")
 	}
 }
 
@@ -121,6 +126,7 @@ Total Response Time:        0,0360  2028741,0000    (100,00%)
 Origin server statistics (for http):
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------
 Pool-name             Host:Port                    Status  ActiveConn  IdleConn  StickyConn  Timeouts  Aborted  Sticky-Reqs  Total-Reqs  BytesTrans  BytesRecvd
+
 `
 
 const testDataPools = `

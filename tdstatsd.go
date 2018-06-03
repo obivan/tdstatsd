@@ -112,9 +112,9 @@ func parse(data []byte) ([]TDPool, error) {
 	for i := 0; i < 4; i++ {
 		scanner.Scan()
 	}
-	// If we see the next header, then we do not have data
+	// If we see the empty line, then we do not have data
 	// it's not an error, just return an empty slice
-	if scanner.Text() == "Origin server statistics (for tcp):" {
+	if scanner.Text() == "" {
 		return nil, nil
 	}
 	// now we see 1st line of pools. store them
