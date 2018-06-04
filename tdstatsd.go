@@ -24,14 +24,13 @@ var (
 func main() {
 	var (
 		tdURL       string
+		bindAddr    string
 		showVersion bool
 	)
-	flag.StringVar(
-		&tdURL,
-		"url",
-		"http://localhost:8000/_perf.txt",
-		"Traffic Director stats page URL",
-	)
+	flag.StringVar(&tdURL, "url", "http://localhost:8000/_perf.txt",
+		"Traffic Director stats page URL")
+	flag.StringVar(&bindAddr, "bind", "0.0.0.0:8081",
+		"Listen on address:port")
 	flag.BoolVar(&showVersion, "version", false, "Show version and exit")
 	flag.Parse()
 
@@ -45,8 +44,8 @@ func main() {
 	indexTpl := template.Must(
 		template.New("index").Parse(indexPageTemplate))
 	http.Handle("/", index(tdURL, client, indexTpl))
-	log.Println("Listening on port 8081")
-	log.Fatal(http.ListenAndServe(":8081", nil))
+	log.Println("Listening on", bindAddr)
+	log.Fatal(http.ListenAndServe(bindAddr, nil))
 }
 
 func index(url string, c *http.Client, tpl *template.Template) http.Handler {
