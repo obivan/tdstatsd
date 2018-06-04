@@ -1,8 +1,13 @@
 package main
 
 import (
+	"bytes"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"sort"
 	"testing"
+	"time"
 )
 
 var mustParse = func(t *testing.T, data []byte) []TDPool {
@@ -24,7 +29,7 @@ func TestParseSort(t *testing.T) {
 	// check sort. last 4 pools must be online
 	sort.Sort(byStatus(pools))
 	for _, p := range pools[2:] {
-		if p.Status != "online" {
+		if p.Status != online {
 			t.Fatal("Wrong pools order")
 		}
 	}
@@ -41,6 +46,23 @@ func TestParseWrongData(t *testing.T) {
 	data := []byte("wrong data")
 	if pools := mustParse(t, data); len(pools) != 0 {
 		t.Fatal("Expected 0 pools")
+	}
+}
+
+func TestGetTdData(t *testing.T) {
+	origin := testDataHead + testDataPools + testDataTail
+	ts := httptest.NewServer(
+		http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprint(w, origin)
+		}))
+	defer ts.Close()
+
+	data, err := getTdData(ts.URL, &http.Client{Timeout: time.Second})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !bytes.Equal(data, []byte(origin)) {
+		t.Fatal("Data not match")
 	}
 }
 
