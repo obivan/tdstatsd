@@ -54,6 +54,7 @@ func index(url string, c *http.Client, tpl *template.Template) http.Handler {
 		}
 		data, err := getTdData(url, c)
 		internalServerError := func(err error) {
+			log.Println(err)
 			http.Error(w, err.Error(),
 				http.StatusInternalServerError)
 		}
@@ -79,19 +80,18 @@ func getTdData(url string, c *http.Client) ([]byte, error) {
 	resp, err := c.Get(url)
 
 	if err != nil {
-		return nil, fmt.Errorf("error %s during %s url processing",
-			err, url)
+		return nil, fmt.Errorf("error getting url '%s': %s", url, err)
 	}
 
 	defer func() {
 		if cerr := resp.Body.Close(); cerr != nil {
-			log.Printf("dude, wtf.. error closing body: %s", cerr)
+			log.Printf("error closing body: %s", cerr)
 		}
 	}()
 
 	buf, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("can't read response body: %s", err)
+		return nil, fmt.Errorf("can't read response body: %s", err)
 	}
 	return buf, nil
 }
