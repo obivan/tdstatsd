@@ -66,6 +66,28 @@ func TestGetTdData(t *testing.T) {
 	}
 }
 
+func TestStatic(t *testing.T) {
+	check := func(resp *http.Response, err error) {
+		if err != nil {
+			t.Fatal(err)
+		}
+		if resp.StatusCode != 200 {
+			t.Fatalf("Received non-200 response: %d\n",
+				resp.StatusCode)
+		}
+	}
+	router := http.NewServeMux()
+	handleStatic(router)
+	server := httptest.NewServer(router)
+	defer server.Close()
+	resp, err := http.Get(server.URL + "/static/vue.js")
+	check(resp, err)
+	resp, err = http.Get(server.URL + "/static/bootstrap.css")
+	check(resp, err)
+	resp, err = http.Get(server.URL + "/static/bootstrap.css.map")
+	check(resp, err)
+}
+
 const testDataHead = `trafficd pid: 12345
 
 Shaitan Traffic Detector 11.1.1.1.1 B99/11/2025 01:23 (MarsOS)

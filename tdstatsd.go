@@ -38,11 +38,13 @@ func main() {
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	http.Handle("/pools", pools(tdURL, client))
-	http.HandleFunc("/", index)
-	handleStatic()
+	router := http.NewServeMux()
+	router.Handle("/pools", pools(tdURL, client))
+	router.HandleFunc("/", index)
+	handleStatic(router)
+
 	log.Println("Listening on", bindAddr)
-	log.Fatal(http.ListenAndServe(bindAddr, nil))
+	log.Fatal(http.ListenAndServe(bindAddr, router))
 }
 
 func pools(url string, c *http.Client) http.Handler {
@@ -101,26 +103,26 @@ func getTdData(url string, c *http.Client) ([]byte, error) {
 	return buf, nil
 }
 
-func handleStatic() {
+func handleStatic(router *http.ServeMux) {
 	// serve vue
 	vueData, err := unpack(vueCompressedData)
 	if err != nil {
 		log.Fatal("decompressing vue error:", err)
 	}
-	http.Handle("/static/vue.js", vue(vueData))
+	router.Handle("/static/vue.js", vue(vueData))
 
 	// serve bootstrap
 	bootstrapData, err := unpack(bootstrapCompressedData)
 	if err != nil {
 		log.Fatal("decompressing bootstrap error:", err)
 	}
-	http.Handle("/static/bootstrap.css", bootstrap(bootstrapData))
+	router.Handle("/static/bootstrap.css", bootstrap(bootstrapData))
 
 	// serve bootstrap map
 	bootstrapMapData, err := unpack(bootstrapMapCompressedData)
 	if err != nil {
 		log.Fatal("decompressing bootstrap map error:", err)
 	}
-	http.Handle("/static/bootstrap.css.map",
+	router.Handle("/static/bootstrap.css.map",
 		bootstrapMap(bootstrapMapData))
 }
