@@ -1,9 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -38,16 +38,16 @@ func main() {
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
-	indexTpl := template.Must(
-		template.New("index").Parse(indexPageTemplate))
-	http.Handle("/", index(tdURL, client, indexTpl))
+	http.Handle("/pools", pools(tdURL, client))
+	http.HandleFunc("/", index)
+	handleStatic()
 	log.Println("Listening on", bindAddr)
 	log.Fatal(http.ListenAndServe(bindAddr, nil))
 }
 
-func index(url string, c *http.Client, tpl *template.Template) http.Handler {
+func pools(url string, c *http.Client) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
+		if r.URL.Path != "/pools" {
 			http.Error(w, http.StatusText(http.StatusNotFound),
 				http.StatusNotFound)
 			return
@@ -68,8 +68,13 @@ func index(url string, c *http.Client, tpl *template.Template) http.Handler {
 			return
 		}
 		sort.Sort(byStatus(pools))
-		w.WriteHeader(http.StatusOK)
-		if err := tpl.Execute(w, pools); err != nil {
+		j, err := json.Marshal(pools)
+		if err != nil {
+			internalServerError(err)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write(j); err != nil {
 			internalServerError(err)
 			return
 		}
@@ -94,4 +99,28 @@ func getTdData(url string, c *http.Client) ([]byte, error) {
 		return nil, fmt.Errorf("can't read response body: %s", err)
 	}
 	return buf, nil
+}
+
+func handleStatic() {
+	// serve vue
+	vueData, err := unpack(vueCompressedData)
+	if err != nil {
+		log.Fatal("decompressing vue error:", err)
+	}
+	http.Handle("/static/vue.js", vue(vueData))
+
+	// serve bootstrap
+	bootstrapData, err := unpack(bootstrapCompressedData)
+	if err != nil {
+		log.Fatal("decompressing bootstrap error:", err)
+	}
+	http.Handle("/static/bootstrap.css", bootstrap(bootstrapData))
+
+	// serve bootstrap map
+	bootstrapMapData, err := unpack(bootstrapMapCompressedData)
+	if err != nil {
+		log.Fatal("decompressing bootstrap map error:", err)
+	}
+	http.Handle("/static/bootstrap.css.map",
+		bootstrapMap(bootstrapMapData))
 }
