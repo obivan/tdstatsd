@@ -24,7 +24,9 @@ const indexPage = `
 							<div class="shadow p-3 mb-5 rounded">
 								<span class="badge badge-pill badge-primary">Last updated at {{ new Date().toLocaleString() }}</span>
 								<span class="badge badge-pill badge-primary">Count of pools: {{ this.pools !== null ? this.pools.length : 0 }}</span>
-								<span class="badge badge-pill badge-primary">Poll interval: {{ this.pollInterval }}s</span>
+								<span class="badge badge-pill badge-primary">
+									Poll interval: {{ this.pollInterval }}s <a class="font-weight-bold text-white" href="#" v-on:click="incrementPollInterval();">(+)</a>   <a class="font-weight-bold text-white" href="#" v-on:click="decrementPollInterval();">(-)</a>
+								</span>
 							</div>
 							<table class="table table-borderless table-striped shadow rounded">
 								<thead>
@@ -58,7 +60,8 @@ const indexPage = `
 				data: {
 					pools: null,
 					error: null,
-					pollInterval: 5
+					pollInterval: 5,
+					intervalID: null
 				},
 				methods: {
 					loadData: function () {
@@ -85,14 +88,28 @@ const indexPage = `
 							});
 					},
 					setUpdateInterval: function() {
-						setInterval(function() {
+						clearInterval(this.intervalID);
+						this.intervalID = setInterval(function() {
 							this.loadData();
 						}.bind(this), this.pollInterval * 1000);
+					},
+					incrementPollInterval: function() {
+						this.pollInterval += 1;
+						this.setUpdateInterval();
+
+					},
+					decrementPollInterval: function() {
+						if (this.pollInterval <= 1) {
+							return;
+						}
+						this.pollInterval -= 1;
+						this.setUpdateInterval();
+
 					}
 				},
 				created: function() {
 					this.loadData();
-					this.setUpdateInterval();
+					this.setUpdateInterval(this.pollInterval);
 				}
 			});
 		</script>
