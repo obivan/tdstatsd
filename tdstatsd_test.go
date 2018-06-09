@@ -75,6 +75,9 @@ func TestStatic(t *testing.T) {
 			t.Fatalf("Received non-200 response: %d\n",
 				resp.StatusCode)
 		}
+		if cerr := resp.Body.Close(); cerr != nil {
+			t.Errorf("error closing resp body: %s", cerr)
+		}
 	}
 	router := http.NewServeMux()
 	handleStatic(router)

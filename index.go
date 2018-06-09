@@ -24,6 +24,8 @@ const indexPage = `
 							<div class="shadow p-3 mb-5 rounded">
 								<span class="badge badge-pill badge-primary">Last updated at {{ new Date().toLocaleString() }}</span>
 								<span class="badge badge-pill badge-primary">Count of pools: {{ this.pools !== null ? this.pools.length : 0 }}</span>
+								<span class="badge badge-pill badge-success">{{ this.pools !== null ? this.pools.filter(p => p.Status === 'online').length : 0 }} online</span>
+								<span class="badge badge-pill badge-danger">{{ this.pools !== null ? this.pools.filter(p => p.Status !== 'online').length : 0 }} not online</span>
 								<span class="badge badge-pill badge-primary">
 									Poll interval: {{ this.pollInterval }}s <a class="font-weight-bold text-white" href="#" v-on:click="incrementPollInterval();">(+)</a>   <a class="font-weight-bold text-white" href="#" v-on:click="decrementPollInterval();">(-)</a>
 								</span>
