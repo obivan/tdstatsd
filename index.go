@@ -58,7 +58,7 @@ const indexPage = `
 		</div>
 		<script>
 			var app = new Vue({
-			el: '#app',
+				el: '#app',
 				data: {
 					pools: null,
 					error: null,
@@ -98,7 +98,6 @@ const indexPage = `
 					incrementPollInterval: function() {
 						this.pollInterval += 1;
 						this.setUpdateInterval();
-
 					},
 					decrementPollInterval: function() {
 						if (this.pollInterval <= 1) {
@@ -106,7 +105,6 @@ const indexPage = `
 						}
 						this.pollInterval -= 1;
 						this.setUpdateInterval();
-
 					}
 				},
 				created: function() {
