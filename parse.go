@@ -22,7 +22,7 @@ func parse(data []byte) ([]TDPool, error) {
 	// If we see the empty line, then we do not have data
 	// it's not an error, just return an empty slice
 	if scanner.Text() == "" {
-		return nil, nil
+		return []TDPool{}, nil
 	}
 	// now we see 1st line of pools. store them
 	var poolLines []string
@@ -38,13 +38,13 @@ func parse(data []byte) ([]TDPool, error) {
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("scanning error: %s", err)
+		return []TDPool{}, fmt.Errorf("scanning error: %s", err)
 	}
 	return parseLines(poolLines)
 }
 
 func parseLines(lines []string) ([]TDPool, error) {
-	var pools []TDPool
+	pools := make([]TDPool, 0)
 	for _, line := range lines {
 		scanner := bufio.NewScanner(strings.NewReader(line))
 		scanner.Split(bufio.ScanWords)
